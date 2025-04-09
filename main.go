@@ -73,46 +73,69 @@ func ejercicio5(x int) {
 }
 
 func ejercicio9(frase string) {
-	var fraseOriginal = frase
+	fraseOriginal := frase
 	fmt.Println("Frase original: ", fraseOriginal) // la imprimo coomo entra
 	fraseMin := strings.ToLower(frase)             // transformo frase a minuscula y la guardo en fraseMin
-	pos := strings.Index(fraseMin, "jueves")
+	pos := strings.Index(fraseMin, "jueves")       // busco la ocurrencia de la palabra 'jueves' en la frase convertida en minuscula fraseMin
 
-	fmt.Println("Frase transformada en minuscula: ", fraseMin)                                                                            // vuelvo a imprimir
-	fmt.Println("La posicion de la frase completa en la que tengo que cambiar jueves por martes es: ", strings.Index(fraseMin, "jueves")) // posicion en la que tengo que insertar la palabra    // imprime la posicion de la primera vez que encuentra la palabra jueves, indice basado en las letras, por ejemplo en este caso imprime 3 porque encuentra donde empieza la palabra jueves(el espacio lo cuenta)
+	println("primera letra de pos: ", string(fraseOriginal[pos]))
 
-	if pos == -1 {
-		fmt.Println("No se encontro la palabra 'jueves' contenida en la frase ingresada")
-		
-	}
-
-	var palabraJueves = fraseOriginal[pos : pos+6]
-	fmt.Println("Palabra encontrada: ", palabraJueves)
-
-	letras := []rune(palabraJueves)
-	for i, letra := range letras {
-		fmt.Printf("%c es mayuscula: %v\n", letra, unicode.IsUpper(letra))
-		if unicode.IsUpper(letra) {
-			fmt.Println("La letra mayuscula de la frase original esta en la posicion: ", i)
+	posiciones := make([]int, 0, 0)
+	posiciones = append(posiciones, pos)
+	if pos != -1 {
+		fraseMin = fraseMin[pos+6:]
+		fmt.Println("Frase acortada: ", fraseMin)
+		for range fraseMin {
+			println("pos vale: ", pos)
+			pos = strings.Index(fraseMin, "jueves")
+			if pos != -1 {
+				fraseMin = fraseMin[pos+6:]
+				fmt.Println("Frase acortada: ", fraseMin)
+				posiciones = append(posiciones, pos)
+			}
 		}
 	}
+	fmt.Println("Posiciones donde aparece jueves: ", posiciones)
 
-	// construyo 'martes' respetando las mayusculas que traia juevEs
-	target := []rune("martes") // Convierte el string "martes" en un slice de rune. => ['m', 'a', 'r', 't', 'e', 's']
-	palabraNueva := make([]rune, len(target)) // Crea un slice vacío de tipo rune, con el mismo tamaño que target (6 letras en "martes"). make([]rune, 6) = slice de 6 lugares listo para que pongamos letras.
+	println("letras de pos: ", string(fraseOriginal[posiciones[0]]))
+	println("letras de pos: ", string(fraseOriginal[posiciones[1]]))
+	println("letras de pos: ", string(fraseOriginal[posiciones[2]]))
 
-	for i, letra := range target {  //Recorre target ("martes") letra por letra.
-		if unicode.IsUpper(rune(palabraJueves[i])) { // Pregunta: ¿Esta letra (posicion i) de "jueves" está en mayúscula?
-			palabraNueva[i] = unicode.ToUpper(letra) // Si la letra en "jueves" era mayúscula, entonces convierto la letra de "martes" a mayúscula.
-		} else {
-			palabraNueva[i] = letra // de lo contrario la dejo igual que como estaba
-		}
-	}
+	// fmt.Println("Frase transformada en minuscula: ", fraseMin)                                                                                // Imprimo frase en minuscula
+	// fmt.Println("Las posiciones de la frase completa en la que tengo que cambiar jueves por martes son: ", strings.Index(fraseMin, "jueves")) // posicion en la que tengo que insertar la palabra    // imprime la posicion de la primera vez que encuentra la palabra jueves, indice basado en las letras, por ejemplo en este caso imprime 3 porque encuentra donde empieza la palabra jueves(el espacio lo cuenta)
 
-	fmt.Println("Palabra nueva: ", string(palabraNueva))
-	// remplazo primera aparicion
-	fraseResultante := fraseOriginal[:pos] + string(palabraNueva) + fraseOriginal[pos+6:]
+	// if pos == -1 {
+	// 	fmt.Println("No se encontro la palabra 'jueves' contenida en la frase ingresada")
+	// }
 
-	fmt.Println("Frase final: ",fraseResultante)
+	// var palabraJueves = fraseOriginal[pos : pos+6] // palabraJueves = fraseOriginal desde posicion donde empieza jueves hasta la cantidad de letras
+	// fmt.Println("Palabra encontrada: ", palabraJueves)
+
+	// letras := []rune(palabraJueves)
+	// for i, letra := range letras {
+	// 	fmt.Printf("%c es mayuscula: %v\n", letra, unicode.IsUpper(letra))
+	// 	if unicode.IsUpper(letra) {
+	// 		fmt.Println("La letra mayuscula de la frase original esta en la posicion: ", i)
+	// 	}
+	// }
+
+	// // construyo 'martes' respetando las mayusculas que traia juevEs
+
+	// target := []rune("martes")                // Convierte el string "martes" en un slice de rune. => ['m', 'a', 'r', 't', 'e', 's']
+	// palabraNueva := make([]rune, len(target)) // Crea un slice vacío de tipo rune, con el mismo tamaño que target (6 letras en "martes"). make([]rune, 6) = slice de 6 lugares listo para que pongamos letras.
+
+	// for i, letra := range target { //Recorre target ("martes") letra por letra.
+	// 	if unicode.IsUpper(rune(palabraJueves[i])) { // Pregunta: ¿Esta letra (posicion i) de "jueves" está en mayúscula?(palabraJueves[0] => false)
+	// 		palabraNueva[i] = unicode.ToUpper(letra) // Si la letra en "jueves" era mayúscula, entonces convierto la letra de "martes" a mayúscula.
+	// 	} else {
+	// 		palabraNueva[i] = letra // de lo contrario la dejo igual que como estaba
+	// 	}
+	// }
+
+	// fmt.Println("Palabra nueva: ", string(palabraNueva))
+	// // remplazo primera aparicion
+	// fraseResultante := fraseOriginal[:pos] + string(palabraNueva) + fraseOriginal[pos+6:]
+
+	// fmt.Println("Frase final: ", fraseResultante)
 
 }
