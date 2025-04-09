@@ -105,7 +105,7 @@ func ejercicio9(frase string) {
 		if unicode.IsUpper(rune(palabraJueves[i])) { // Pregunta: ¿Esta letra (posicion i) de "jueves" está en mayúscula?
 			palabraNueva[i] = unicode.ToUpper(letra) // Si la letra en "jueves" era mayúscula, entonces convierto la letra de "martes" a mayúscula.
 		} else {
-			palabraNueva[i] = letra
+			palabraNueva[i] = letra // de lo contrario la dejo igual que como estaba
 		}
 	}
 
