@@ -1,10 +1,9 @@
 package main
-
 import (
-	"bufio"
-	"fmt"
-	"os"
 	"strings"
+	"fmt"
+	"bufio"
+	"os"
 	"unicode"
 )
 
@@ -73,33 +72,39 @@ func ejercicio5(x int) {
 }
 
 func ejercicio9(frase string) {
-	fraseOriginal := frase
-	fmt.Println("Frase original: ", fraseOriginal) // la imprimo coomo entra
-	fraseMin := strings.ToLower(frase)             // transformo frase a minuscula y la guardo en fraseMin
-	pos := strings.Index(fraseMin, "jueves")       // busco la ocurrencia de la palabra 'jueves' en la frase convertida en minuscula fraseMin
-
-	println("primera letra de pos: ", string(fraseOriginal[pos]))
-
-	posiciones := make([]int, 0, 0)
-	posiciones = append(posiciones, pos)
-	if pos != -1 {
-		fraseMin = fraseMin[pos+6:]
-		fmt.Println("Frase acortada: ", fraseMin)
-		for range fraseMin {
-			println("pos vale: ", pos)
-			pos = strings.Index(fraseMin, "jueves")
-			if pos != -1 {
-				fraseMin = fraseMin[pos+6:]
-				fmt.Println("Frase acortada: ", fraseMin)
-				posiciones = append(posiciones, pos)
+	fmt.Println("Frase original: ", frase)
+	// busco la ocurrencia de la palabra 'jueves' en la frase convertida en minuscula
+	pos := strings.Index(strings.ToLower(frase), "jueves")
+	var reemplazo string = "martes"
+	// como los string son inmutables, creo una runa de la frase ya que esta podra modificarse
+	fraseRune := []rune(frase) 
+	reemplazoRune := []rune(reemplazo) 
+	for pos != -1 {
+		//voy a recorrer la frase(pasada a rune) la cantidad de veces que tenga la palabra a reemplazar
+		for i:= 0; i<len(reemplazo);i++{ 
+			if(unicode.IsUpper(fraseRune[pos+i])){ 
+				reemplazoRune[i]=unicode.ToUpper(reemplazoRune[i]);
 			}
+			fraseRune[pos+i] = reemplazoRune[i];
 		}
+		frase = string(fraseRune);
+		pos = strings.Index(strings.ToLower(frase),"jueves");
 	}
-	fmt.Println("Posiciones donde aparece jueves: ", posiciones)
+	println("Frase terminada: ", frase);
+}
 
-	println("letras de pos: ", string(fraseOriginal[posiciones[0]]))
-	println("letras de pos: ", string(fraseOriginal[posiciones[1]]))
-	println("letras de pos: ", string(fraseOriginal[posiciones[2]]))
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// fmt.Println("Frase transformada en minuscula: ", fraseMin)                                                                                // Imprimo frase en minuscula
 	// fmt.Println("Las posiciones de la frase completa en la que tengo que cambiar jueves por martes son: ", strings.Index(fraseMin, "jueves")) // posicion en la que tengo que insertar la palabra    // imprime la posicion de la primera vez que encuentra la palabra jueves, indice basado en las letras, por ejemplo en este caso imprime 3 porque encuentra donde empieza la palabra jueves(el espacio lo cuenta)
@@ -138,4 +143,4 @@ func ejercicio9(frase string) {
 
 	// fmt.Println("Frase final: ", fraseResultante)
 
-}
+//}
