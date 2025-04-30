@@ -1,0 +1,62 @@
+/* Las temperaturas de los pacientes de un hospital se dividen en 3
+grupos: alta (mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de
+	36). Se deben leer 10 temperaturas de pacientes e informar el
+	porcentaje de pacientes de cada grupo. Luego se debe imprimir el
+	promedio entero entre la temperatura máxima y la temperatura mínima.
+	Resolver cargando primero todos los valores usando un arreglo y
+	almacenar los datos en variables escalares como acumuladores y
+	contadores. Probar generar archivos de entrada con los valores y
+	ejecutar, por ejemplo, de la siguiente forma:
+
+	go run p2-1.go < input2-1.txt
+
+	a) Volver a resolver pero usando un arreglo o un Map de tres
+	posiciones donde se acumulan los valores de cada grupo.
+
+	b) Modificar la solución para incluir grupo de valores incorrectos, como
+	pueden ser los mayores a 50◦ y los menores a 20◦.
+
+	c) Escribir una función que pasa de grados Celsius a Fahrenheit
+	utilizando nuevos tipos y aplicarla al arreglo de los valores leídos. La
+	conversión se realiza de acuerdo a la siguiente ecuación: */
+// un vector 3 posiciones (alta,media,baja)de registros donde cada registro tenemos 2 campos
+// uno para acumular la temperatura y otro para llevar cuenta de la cantidad leida
+package main
+
+import "fmt"
+
+//alta (mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de 36)
+
+type registroTemperatura struct {
+	suma float32
+	cant int
+}
+
+var temperaturas [3]registroTemperatura
+
+func main() {
+	var valorLeido float32
+	for i := 0; i < 10; i++ {
+		fmt.Println("Ingrese una temperatura")
+		fmt.Scan(&valorLeido)
+		pos := verificacion(valorLeido)
+		temperaturas[pos].suma += valorLeido
+		temperaturas[pos].cant++
+	}
+	cantidad := temperaturas[0].cant + temperaturas[2].cant
+	sumaTotal := temperaturas[0].suma + temperaturas[2].suma
+	promEnt := int((sumaTotal / float32(cantidad)))
+	fmt.Print("El promedio entre maxima y minima es: ", promEnt)
+	fmt.Println(temperaturas)
+}
+
+////alta (mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de 36)
+func verificacion(num float32) int {
+	if num > 37.5 {
+		return 0
+	} else if (num >= 36) && (num <= 37.5) {
+		return 1
+	} else {
+		return 2
+	}
+}
