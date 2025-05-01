@@ -29,16 +29,12 @@ import (
 )
 
 //alta (mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de 36)
-
-type registroTemperatura struct {
-	suma float32
-	cant int
-}
-
-var temperaturas [3]registroTemperatura
+type Celsius float64
+type Fahrenheit float64
+var temperaturas [10]Celsius
 
 func main() {
-	var valorLeido float32
+	var valorLeido Celsius
 	for i := 0; i < 10; i++ {
 		fmt.Println("Ingrese una temperatura")
 		fmt.Scan(&valorLeido)
@@ -53,7 +49,7 @@ func main() {
 	
 	cantidad := temperaturas[0].cant + temperaturas[2].cant
 	sumaTotal := temperaturas[0].suma + temperaturas[2].suma
-	promEnt := int((sumaTotal / float32(cantidad)))
+	promEnt := int((sumaTotal / Celsius(cantidad)))
 	fmt.Print("El promedio entre maxima y minima es: ", promEnt)
 }
 
@@ -69,3 +65,6 @@ func verificacion(num float32) (int,error) {
 		return -1, errors.New("temperatura fuera de rango")
 	}
 }
+func CToF(c Celsius) Fahrenheit {
+	return Fahrenheit(c * 9 / 5 + 32)
+} 
