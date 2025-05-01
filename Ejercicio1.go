@@ -23,7 +23,10 @@ grupos: alta (mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de
 // uno para acumular la temperatura y otro para llevar cuenta de la cantidad leida
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"errors"
+)
 
 //alta (mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de 36)
 
@@ -39,24 +42,30 @@ func main() {
 	for i := 0; i < 10; i++ {
 		fmt.Println("Ingrese una temperatura")
 		fmt.Scan(&valorLeido)
-		pos := verificacion(valorLeido)
-		temperaturas[pos].suma += valorLeido
-		temperaturas[pos].cant++
+		pos,err := verificacion(valorLeido)
+		if(err == nil){
+			temperaturas[pos].suma += valorLeido
+			temperaturas[pos].cant++
+		}else{
+			fmt.Printf("%v\n", err)
+		}
 	}
+	
 	cantidad := temperaturas[0].cant + temperaturas[2].cant
 	sumaTotal := temperaturas[0].suma + temperaturas[2].suma
 	promEnt := int((sumaTotal / float32(cantidad)))
 	fmt.Print("El promedio entre maxima y minima es: ", promEnt)
-	fmt.Println(temperaturas)
 }
 
-////alta (mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de 36)
-func verificacion(num float32) int {
-	if num > 37.5 {
-		return 0
+////alta mayor de 37.5), normal (entre 36 y 37.5) y baja (menor de 36)
+func verificacion(num float32) (int,error) {
+	if num > 37.5 && num < 50 {
+		return 0,nil
 	} else if (num >= 36) && (num <= 37.5) {
-		return 1
-	} else {
-		return 2
+		return 1,nil
+	} else if(num>=20) {
+		return 2,nil
+	}else{
+		return -1, errors.New("temperatura fuera de rango")
 	}
 }
