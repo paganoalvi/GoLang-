@@ -42,10 +42,10 @@ var porcentajesPacientesXGrupo [3]int
 var max = -999
 var min = 999
 
-func main() {
+func main1() {
 	var valorLeido float32
 	for i := 0; i < cantidadTemperaturasLeidas; i++ {
-		fmt.Println("Ingrese una temperatura")
+		//fmt.Println("Ingrese una temperatura")
 		fmt.Scan(&valorLeido)
 		if valorLeido > float32(max) {
 			max = int(valorLeido)
@@ -61,9 +61,9 @@ func main() {
 			fmt.Printf("%v\n", err)
 		}
 	}
-	fmt.Println(temperaturas[0].cant)
-	fmt.Println(temperaturas[1].cant)
-	fmt.Println(temperaturas[2].cant)
+	//fmt.Println(temperaturas[0].cant) // pa debug
+	//fmt.Println(temperaturas[1].cant) // pa debug
+	//fmt.Println(temperaturas[2].cant) // pa debug
 
 	//fmt.Println("Cantidad de temperatuas leidas: ",cantidad) // pa debug
 
