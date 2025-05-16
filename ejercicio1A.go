@@ -51,10 +51,10 @@ var tempMax = -999
 
 var tempMin = 999
 
-func main() {
+func main1A() {
 	var valorLeido float32
 	maperValoresIncorrectos = make(map[string]int) // incializo maper valores incorrectos
-	for i := 0; i < cantTempLeidas; i++ {
+	for range cantTempLeidas {
 		//fmt.Println("Ingrese una temperatura")
 		fmt.Scan(&valorLeido)
 		if valorLeido > float32(tempMax) {
