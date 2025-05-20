@@ -118,7 +118,7 @@ func (bc BlockChain) esValida() bool {
 	return true
 }
 
-func main() {
+func mainO2() {
 	bc := NuevaBlockChain()
 
 	alvaro := NuevaBilletera("alvaP14", "Alvaro", "Pagano")

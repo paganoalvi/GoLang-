@@ -19,7 +19,7 @@ type List struct {
 
 // OPERACIONES BASICAS
 
-func New() List {
+func NewLis() List {
 	return List{}
 }
 
@@ -27,7 +27,7 @@ func IsEmpty(l List) bool {
 	return l.head == nil
 }
 
-func Len(l List) int {
+func LenL(l List) int {
 	return l.size
 }
 
@@ -104,13 +104,13 @@ func Iterate(l List, f func(int) int) {
 
 // inciso B
 func main9() {
-	l := New()
+	l := NewLis()
 	PushBack(&l, 1)
 	PushFront(&l, 2)
 	PushBack(&l, 3)
 
 	fmt.Println("Lista: ", ToString(l))
-	fmt.Println("Tamano lista: ", Len(l))
+	fmt.Println("Tamano lista: ", LenL(l))
 
 	dato, err := FrontElement(l)
 	if err == nil {
