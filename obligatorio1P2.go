@@ -130,7 +130,7 @@ func EliminarSinTitulo(l *Lista) {
 }
 
 // Programa Principal
-func main() {
+func maino1() {
 	l := Nueva()
 
 	l.AgregarAtras(ingresante{
