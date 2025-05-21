@@ -24,8 +24,8 @@ package main
 import "fmt"
 
 type secuencia struct {
-	valor        int
-	repeticiones int
+	valor       int
+	ocurrencias int
 }
 
 type OptimumSlice struct {
@@ -45,12 +45,12 @@ func New(s []int) OptimumSlice {
 		if s[i] == numAct { //while
 			repe++
 		} else {
-			secuenciaNumeros = append(secuenciaNumeros, secuencia{valor: numAct, repeticiones: repe})
+			secuenciaNumeros = append(secuenciaNumeros, secuencia{valor: numAct, ocurrencias: repe})
 			numAct = s[i]
 			repe = 1
 		}
 	}
-	secuenciaNumeros = append(secuenciaNumeros, secuencia{valor: numAct, repeticiones: repe})
+	secuenciaNumeros = append(secuenciaNumeros, secuencia{valor: numAct, ocurrencias: repe})
 	return OptimumSlice{secuenciasNumeros: secuenciaNumeros}
 }
 
@@ -58,7 +58,7 @@ func New(s []int) OptimumSlice {
 func SliceArray(os OptimumSlice) []int { // recibimos un os y retornamos un slice
 	var resultado []int
 	for _, r := range os.secuenciasNumeros { //para todos los valores en os _ indice r valor
-		for i := 0; i < r.repeticiones; i++ {
+		for i := 0; i < r.ocurrencias; i++ {
 			resultado = append(resultado, r.valor)
 		}
 	}
@@ -68,8 +68,8 @@ func SliceArray(os OptimumSlice) []int { // recibimos un os y retornamos un slic
 // len devuelve la dimension logica de lo que seria el slice sin comprimir
 func Len(os OptimumSlice) int {
 	long := 0
-	for _, v := range os.secuenciasNumeros {
-		long += v.repeticiones
+	for _, v := range os.secuenciasNumeros { // v => secuencia => {valor,ocurrencias}
+		long += v.ocurrencias
 	}
 	return long
 }
@@ -105,44 +105,48 @@ func Insert(os *OptimumSlice, elem int, pos int) int {
 		os.secuenciasNumeros = append(os.secuenciasNumeros, secuencia{elem, 1})
 	}
 	posLog := 0
-	for i, r := range os.secuenciasNumeros {
-		if posLog+r.repeticiones > pos {
+	for i, r := range os.secuenciasNumeros { // i indice , r => secuencia{valor,ocurrencia} (foreach elemento en secuensnums)
+		if posLog+r.ocurrencias > pos {
 			// insertar en medio de secuenciaNumeros
 			offset := pos - posLog
 			if r.valor == elem {
 				// caso 1: mismo valor => aumentar repeticiones
-				os.secuenciasNumeros[i].repeticiones++
+				os.secuenciasNumeros[i].ocurrencias++
 				return i
 			}
 			// caso 2: valor distinto => partir el run en dos y meter el nuevo valor
 			antes := secuencia{r.valor, offset}
 			nuevaSecuen := secuencia{elem, 1}
-			despues := secuencia{r.valor, r.repeticiones - offset}
+			despues := secuencia{r.valor, r.ocurrencias - offset}
 			// remplazamos secuencia original con antes + nuevaSecuen + despues
 			nuevaSecuencias := []secuencia{}
 			nuevaSecuencias = append(nuevaSecuencias, os.secuenciasNumeros[:i]...)
-			if antes.repeticiones > 0 {
+			if antes.ocurrencias > 0 {
 				nuevaSecuencias = append(nuevaSecuencias, antes)
 			}
 			nuevaSecuencias = append(nuevaSecuencias, nuevaSecuen)
-			if despues.repeticiones > 0 {
+			if despues.ocurrencias > 0 {
 				nuevaSecuencias = append(nuevaSecuencias, despues)
 			}
 			nuevaSecuencias = append(nuevaSecuencias, os.secuenciasNumeros[i+1:]...)
 			os.secuenciasNumeros = nuevaSecuencias
 			return i
 		}
-		posLog += r.repeticiones
+		posLog += r.ocurrencias
 	}
 	// ultimo caso: insertar al final
 	ult := os.secuenciasNumeros[len(os.secuenciasNumeros)-1]
 	if ult.valor == elem {
-		os.secuenciasNumeros[len(os.secuenciasNumeros)-1].repeticiones++
+		os.secuenciasNumeros[len(os.secuenciasNumeros)-1].ocurrencias++
 	} else {
 		os.secuenciasNumeros = append(os.secuenciasNumeros, secuencia{elem, 1})
 	}
 	return len(os.secuenciasNumeros) - 1
 }
+
+/*MEJORA PARA INSERT? QUE BUSQUE SI SE ENCUENTRA EL VALOR LO AGREGE A ESE MISMO ELEMENTO Y SUME EN UNO LAS OCURRENCIAS,
+SI ES MAS CHICO QUE LO AGREGUE ADELTANTE Y CREE TODO Y SI ES MAS GRANDE ATRAS
+ANDA PERO SIENTO QUE LO PODRIA HACER MEJOR*/
 
 func main() {
 	sl := []int{}
