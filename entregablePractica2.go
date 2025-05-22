@@ -21,7 +21,10 @@ funcion integrada que sirve para agregar un "valorNuevo" o
 */
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type secuencia struct {
 	valor       int
@@ -93,33 +96,32 @@ func LastElement(os OptimumSlice) int {
 		panic("Optimum Slice vacio")
 	}
 	return os.secuenciasNumeros[len(os.secuenciasNumeros)-1].valor
-	//len(os.secuenciasNumeros) = 3 | -1 porque los indices comienzan en 0
 }
 
-// Implementamos Insert => Recibe un ptro a OS,un elemento(int),y una posicion(int) retorna un int
-func Insert(os *OptimumSlice, elem int, pos int) int {
-	if pos < 0 || pos > len(os.secuenciasNumeros) {
-		panic("Posicion invalida para insertar")
+func Insert(os *OptimumSlice, elem int, pos int) (int, error) {
+	if pos <= 0 || pos > Len(*os) {
+		return -1, errors.New("Posicion no valida para insertar,el tamano llega hasta")
 	}
 	if isEmpty(*os) { //si esta vacio, inserto al principio
 		os.secuenciasNumeros = append(os.secuenciasNumeros, secuencia{elem, 1})
+		return 0, nil
 	}
 	posLog := 0
-	for i, r := range os.secuenciasNumeros { // i indice , r => secuencia{valor,ocurrencia} (foreach elemento en secuensnums)
+	for i, r := range os.secuenciasNumeros {
 		if posLog+r.ocurrencias > pos {
-			// insertar en medio de secuenciaNumeros
+			// offset define en que parte del bloque insertar
 			offset := pos - posLog
 			if r.valor == elem {
 				// caso 1: mismo valor => aumentar repeticiones
 				os.secuenciasNumeros[i].ocurrencias++
-				return i
+				return i, nil
 			}
 			// caso 2: valor distinto => partir el run en dos y meter el nuevo valor
 			antes := secuencia{r.valor, offset}
 			nuevaSecuen := secuencia{elem, 1}
 			despues := secuencia{r.valor, r.ocurrencias - offset}
 			// remplazamos secuencia original con antes + nuevaSecuen + despues
-			nuevaSecuencias := []secuencia{}
+			nuevaSecuencias := []secuencia{} //OSlice vacio
 			nuevaSecuencias = append(nuevaSecuencias, os.secuenciasNumeros[:i]...)
 			if antes.ocurrencias > 0 {
 				nuevaSecuencias = append(nuevaSecuencias, antes)
@@ -130,7 +132,7 @@ func Insert(os *OptimumSlice, elem int, pos int) int {
 			}
 			nuevaSecuencias = append(nuevaSecuencias, os.secuenciasNumeros[i+1:]...)
 			os.secuenciasNumeros = nuevaSecuencias
-			return i
+			return i, nil
 		}
 		posLog += r.ocurrencias
 	}
@@ -141,31 +143,43 @@ func Insert(os *OptimumSlice, elem int, pos int) int {
 	} else {
 		os.secuenciasNumeros = append(os.secuenciasNumeros, secuencia{elem, 1})
 	}
-	return len(os.secuenciasNumeros) - 1
+	return len(os.secuenciasNumeros) - 1, nil
 }
 
-/*MEJORA PARA INSERT? QUE BUSQUE SI SE ENCUENTRA EL VALOR LO AGREGE A ESE MISMO ELEMENTO Y SUME EN UNO LAS OCURRENCIAS,
-SI ES MAS CHICO QUE LO AGREGUE ADELTANTE Y CREE TODO Y SI ES MAS GRANDE ATRAS
-ANDA PERO SIENTO QUE LO PODRIA HACER MEJOR*/
-
 func main() {
-	sl := []int{}
-	os := New(sl)
-	fmt.Println(isEmpty(os))
-
-	s := []int{1, 1, 1, 1, 1, 1, 2, 2, 2, 5, 5, 5, 5, 5}
-	o := New(s) // primera prueba de new
-	fmt.Println(o)
-	sliceAgain := SliceArray(o)
-	fmt.Println(sliceAgain) // segunda prueba
-
-	fmt.Println(isEmpty(o))
-	Insert(&o, 4, 2)
-	fmt.Println(o)
-	s = SliceArray(o)
-	fmt.Println(s)
-
+	//sl := []int{}
+	//os := New(sl)
+	//fmt.Println(isEmpty(os))
 	//fmt.Println(FrontElemen(o))
 	//fmt.Println(LastElement(os))
 
+	s := []int{1, 1, 1, 1, 1, 1, 2, 2, 2, 5, 5, 5, 5, 5}
+	o := New(s)
+	fmt.Println("OptimumSlice original=> ", o)
+	sliceAgain := SliceArray(o)
+	fmt.Println("OptimumSlice desempaquetado => ", sliceAgain) // segunda prueba
+
+	_, err := Insert(&o, 4, 5) // valor 4, posicion 2(del os)
+	if err == nil {
+		fmt.Println("Elemento insertado correctamente")
+	} else {
+		fmt.Println(err)
+	}
+	fmt.Println("OptimumSlice luego de la insercion=> ", o)
+	s = SliceArray(o)
+	fmt.Println("Oslice desempaquetado luego de la insercion=> ", s)
+
 }
+
+/*
+BREVE DESCRIPCION DE VARIABLES DE INSERT
+---------------------------------------------------------------------------------
+| NOMBRE	=>								SIGNIFICADO                         |
+
+|posLog      |		=>		índice lógico simulado sobre los valores expandidos |
+|offset      |		=>		cuántos elementos dentro de una secuencia hasta pos |
+|antes       |		=>		fragmento izquierdo de la secuencia original        |
+|despues     |		=>		fragmento derecho de la secuencia original          |
+|nuevaSecuen |		=>		el nuevo valor a insertar como secuencia propia     |
+---------------------------------------------------------------------------------
+*/
