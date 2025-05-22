@@ -1,24 +1,3 @@
-/*
-	Objetivo => Diseñar una estructura para representar slices de enteros con muchas
-
-repeticiones consecutivas, de forma óptima en memoria, y manipularla a través
-de funciones específicas.
-
-	Run-Length Encoding (RLE) datos con muchas rachas (runs) de elementos repetidos
-
-Ej:
-[]int{1,1,1,2,2,3,3,3,3} => [
-
-	{valor: 1, repeticiones: 3},
-	{valor: 2, repeticiones: 2},
-	{valor: 3, repeticiones: 4},
-
-]
-
-append(slice,valorNuevo) =>
-funcion integrada que sirve para agregar un "valorNuevo" o
-"valoresNuevos" al final de un "slice"
-*/
 package main
 
 import (
@@ -38,14 +17,14 @@ type OptimumSlice struct {
 // Recibimos un slice y lo compactamos en un OptimumSlice
 func New(s []int) OptimumSlice {
 	if len(s) == 0 {
-		return OptimumSlice{secuenciasNumeros: []secuencia{}} // retorno slice vacio
+		return OptimumSlice{secuenciasNumeros: []secuencia{}} // retorna slice vacio
 	}
 	secuenciaNumeros := []secuencia{}
 	numAct := s[0]
 	repe := 1
 
-	for i := 1; i < len(s); i++ { // for tradicional de 1 hasta len(s)
-		if s[i] == numAct { //while
+	for i := 1; i < len(s); i++ {
+		if s[i] == numAct {
 			repe++
 		} else {
 			secuenciaNumeros = append(secuenciaNumeros, secuencia{valor: numAct, ocurrencias: repe})
@@ -60,7 +39,7 @@ func New(s []int) OptimumSlice {
 // Convertimos de OptimumSlice a slice comun
 func SliceArray(os OptimumSlice) []int { // recibimos un os y retornamos un slice
 	var resultado []int
-	for _, r := range os.secuenciasNumeros { //para todos los valores en os _ indice r valor
+	for _, r := range os.secuenciasNumeros {
 		for i := 0; i < r.ocurrencias; i++ {
 			resultado = append(resultado, r.valor)
 		}
@@ -71,18 +50,16 @@ func SliceArray(os OptimumSlice) []int { // recibimos un os y retornamos un slic
 // len devuelve la dimension logica de lo que seria el slice sin comprimir
 func Len(os OptimumSlice) int {
 	long := 0
-	for _, v := range os.secuenciasNumeros { // v => secuencia => {valor,ocurrencias}
+	for _, v := range os.secuenciasNumeros {
 		long += v.ocurrencias
 	}
 	return long
 }
 
-// isEmpty devuelve true si el os se encuentra vacio
 func isEmpty(os OptimumSlice) bool {
 	return (len(os.secuenciasNumeros) == 0)
 }
 
-// Devolvemos el primer "valor" del Os
 func FrontElemen(os OptimumSlice) int {
 	if isEmpty(os) {
 		panic("OptimumSlice vacio")
@@ -90,7 +67,6 @@ func FrontElemen(os OptimumSlice) int {
 	return os.secuenciasNumeros[0].valor
 }
 
-// Devolvemos el ultimo elemento del Os
 func LastElement(os OptimumSlice) int {
 	if isEmpty(os) {
 		panic("Optimum Slice vacio")
