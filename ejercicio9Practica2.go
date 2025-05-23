@@ -31,7 +31,7 @@ func LenL(l List) int {
 	return l.size
 }
 
-func FrontElement(l List) (int, error) {
+func FrontElemen(l List) (int, error) {
 	if l.head == nil { // si la lista esta vacia,manejo el error
 		return 0, errors.New("La lista esta vacia") // devuelvo cero y el mensaje de error
 	}
@@ -112,7 +112,7 @@ func main9() {
 	fmt.Println("Lista: ", ToString(l))
 	fmt.Println("Tamano lista: ", LenL(l))
 
-	dato, err := FrontElement(l)
+	dato, err := FrontElemen(l)
 	if err == nil {
 		fmt.Println("Primer dato: ", dato)
 	}

@@ -47,7 +47,6 @@ func SliceArray(os OptimumSlice) []int { // recibimos un os y retornamos un slic
 	return resultado
 }
 
-// len devuelve la dimension logica de lo que seria el slice sin comprimir
 func Len(os OptimumSlice) int {
 	long := 0
 	for _, v := range os.secuenciasNumeros {
@@ -60,23 +59,24 @@ func isEmpty(os OptimumSlice) bool {
 	return (len(os.secuenciasNumeros) == 0)
 }
 
-func FrontElemen(os OptimumSlice) int {
+func FrontElement(os OptimumSlice) (int, error) {
 	if isEmpty(os) {
-		panic("OptimumSlice vacio")
+		return -1, errors.New("No hay frontElement,optimumSlice vacio")
 	}
-	return os.secuenciasNumeros[0].valor
+	return os.secuenciasNumeros[0].valor, nil
 }
 
-func LastElement(os OptimumSlice) int {
+func LastElement(os OptimumSlice) (int, error) {
 	if isEmpty(os) {
-		panic("Optimum Slice vacio")
+		return -1, errors.New("No hay LastElement,optimumSlice vacio")
 	}
-	return os.secuenciasNumeros[len(os.secuenciasNumeros)-1].valor
+	return os.secuenciasNumeros[len(os.secuenciasNumeros)-1].valor, nil
 }
 
 func Insert(os *OptimumSlice, elem int, pos int) (int, error) {
-	if pos <= 0 || pos > Len(*os) {
-		return -1, errors.New("Posicion no valida para insertar,el tamano llega hasta")
+	pos = pos - 1
+	if pos < 0 || pos > Len(*os) { // chequeo pos
+		return -1, errors.New("Posicion no valida para insertar")
 	}
 	if isEmpty(*os) { //si esta vacio, inserto al principio
 		os.secuenciasNumeros = append(os.secuenciasNumeros, secuencia{elem, 1})
@@ -87,10 +87,9 @@ func Insert(os *OptimumSlice, elem int, pos int) (int, error) {
 		if posLog+r.ocurrencias > pos {
 			// offset define en que parte del bloque insertar
 			offset := pos - posLog
-			if r.valor == elem {
-				// caso 1: mismo valor => aumentar repeticiones
+			if r.valor == elem { //caso 1: mismo valor => aumentar repeticiones
 				os.secuenciasNumeros[i].ocurrencias++
-				return i, nil
+				return pos, nil
 			}
 			// caso 2: valor distinto => partir el run en dos y meter el nuevo valor
 			antes := secuencia{r.valor, offset}
@@ -108,7 +107,7 @@ func Insert(os *OptimumSlice, elem int, pos int) (int, error) {
 			}
 			nuevaSecuencias = append(nuevaSecuencias, os.secuenciasNumeros[i+1:]...)
 			os.secuenciasNumeros = nuevaSecuencias
-			return i, nil
+			return pos, nil
 		}
 		posLog += r.ocurrencias
 	}
@@ -119,7 +118,7 @@ func Insert(os *OptimumSlice, elem int, pos int) (int, error) {
 	} else {
 		os.secuenciasNumeros = append(os.secuenciasNumeros, secuencia{elem, 1})
 	}
-	return len(os.secuenciasNumeros) - 1, nil
+	return pos, nil
 }
 
 func main() {
@@ -129,21 +128,36 @@ func main() {
 	//fmt.Println(FrontElemen(o))
 	//fmt.Println(LastElement(os))
 
-	s := []int{1, 1, 1, 1, 1, 1, 2, 2, 2, 5, 5, 5, 5, 5}
+	s := []int{1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 33, 33, 8888, 8888, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 1, 1, 1, 1, 1, 1, 15, 15}
 	o := New(s)
+	fmt.Println("Dimension logica =>", Len(o))
+	fe, erro := FrontElement(o)
+	if erro == nil {
+		fmt.Println("Front Element => ", fe)
+	} else {
+		fmt.Println(erro)
+	}
+	le, erro := LastElement(o)
+	if erro == nil {
+		fmt.Println("Last Element => ", le)
+	} else {
+		fmt.Println(erro)
+	}
+
 	fmt.Println("OptimumSlice original=> ", o)
 	sliceAgain := SliceArray(o)
-	fmt.Println("OptimumSlice desempaquetado => ", sliceAgain) // segunda prueba
+	fmt.Println("OptimumSlice desempaquetado =>", sliceAgain) // segunda prueba
 
-	_, err := Insert(&o, 4, 5) // valor 4, posicion 2(del os)
+	i, err := Insert(&o, 4, 60) // valor 4, posicion dl
 	if err == nil {
-		fmt.Println("Elemento insertado correctamente")
+		fmt.Println("Elemento insertado correctamente en la posicion ", i+1)
 	} else {
 		fmt.Println(err)
 	}
 	fmt.Println("OptimumSlice luego de la insercion=> ", o)
 	s = SliceArray(o)
 	fmt.Println("Oslice desempaquetado luego de la insercion=> ", s)
+	fmt.Println("Dimension logica =>", Len(o))
 
 }
 
@@ -152,8 +166,8 @@ BREVE DESCRIPCION DE VARIABLES DE INSERT
 ---------------------------------------------------------------------------------
 | NOMBRE	=>								SIGNIFICADO                         |
 
-|posLog      |		=>		índice lógico simulado sobre los valores expandidos |
-|offset      |		=>		cuántos elementos dentro de una secuencia hasta pos |
+|posLog      |		=>		indice logico simulado sobre los valores expandidos |
+|offset      |		=>		cuantos elementos dentro de una secuencia hasta pos |
 |antes       |		=>		fragmento izquierdo de la secuencia original        |
 |despues     |		=>		fragmento derecho de la secuencia original          |
 |nuevaSecuen |		=>		el nuevo valor a insertar como secuencia propia     |
