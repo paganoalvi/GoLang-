@@ -122,12 +122,6 @@ func Insert(os *OptimumSlice, elem int, pos int) (int, error) {
 }
 
 func main() {
-	//sl := []int{}
-	//os := New(sl)
-	//fmt.Println(isEmpty(os))
-	//fmt.Println(FrontElemen(o))
-	//fmt.Println(LastElement(os))
-
 	s := []int{1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 33, 33, 8888, 8888, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 1, 1, 1, 1, 1, 1, 15, 15}
 	o := New(s)
 	fmt.Println("Dimension logica =>", Len(o))
@@ -146,9 +140,9 @@ func main() {
 
 	fmt.Println("OptimumSlice original=> ", o)
 	sliceAgain := SliceArray(o)
-	fmt.Println("OptimumSlice desempaquetado =>", sliceAgain) // segunda prueba
+	fmt.Println("OptimumSlice desempaquetado =>", sliceAgain)
 
-	i, err := Insert(&o, 4, 60) // valor 4, posicion dl
+	i, err := Insert(&o, 4, 60)
 	if err == nil {
 		fmt.Println("Elemento insertado correctamente en la posicion ", i+1)
 	} else {
