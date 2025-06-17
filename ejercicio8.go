@@ -62,7 +62,7 @@ func (a *Agenda) MostrarAgenda() {
 	fmt.Printf("Total contactos: %d\n", len(a.contacts))
 }
 
-func main() {
+func main8() {
 	agenda := NewAgenda()
 	var wg sync.WaitGroup
 
