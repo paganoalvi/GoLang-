@@ -35,7 +35,7 @@ func findPrimeSequential(N int) []int {
 	return primes
 }
 
-func main() {
+func mainO1() {
 	if len(os.Args) != 2 {
 		fmt.Println("Uso: go run primos_secuencial.go <N>")
 		return
