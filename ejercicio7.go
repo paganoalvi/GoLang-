@@ -22,7 +22,7 @@ func enviador(ch chan<- string, id int, intervalo time.Duration, duration time.D
 	}
 }
 
-func main() {
+func main7() {
 	ch1 := make(chan string)
 	ch2 := make(chan string)
 
