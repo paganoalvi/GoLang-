@@ -6,7 +6,7 @@ import (
 	//"sync"
 )
 
-func main() {
+func main3() {
 	//var wg sync.WaitGroup
 	done := make(chan bool)
 	fmt.Println("Inicia Goroutine del main")
