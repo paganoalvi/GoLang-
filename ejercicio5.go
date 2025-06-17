@@ -35,7 +35,7 @@ func consumidor(id int, nums <-chan int, wg *sync.WaitGroup) {
 	}
 }
 
-func main() {
+func main5() {
 	rng1 := rand.New(rand.NewSource(time.Now().UnixNano()))
 	rng2 := rand.New(rand.NewSource(time.Now().UnixNano() + 1)) // Semilla diferente
 
