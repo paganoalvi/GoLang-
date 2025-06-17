@@ -55,4 +55,5 @@ func main() {
 	close(nums)
 }
 
-/*Podria hacer un canal para cada consumidor para asegurarme de que cada uno reciba*/
+/*Podria hacer un canal para cada consumidor para asegurarme de que cada uno reciba
+problema de scheduling de gorutines, el balanceo no si es correcto(consultar)*/
