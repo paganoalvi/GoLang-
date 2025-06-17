@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func main() {
+func main2c() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	const (
 		numCajas    = 4
