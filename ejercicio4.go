@@ -19,7 +19,7 @@ func pong(pongC chan<- string, pingC <-chan string, wg *sync.WaitGroup) {
 	pongC <- "PONG"  // Envía "PONG" (se almacena en el buffer)
 }
 
-func main() {
+func main4() {
 	const cant = 5
 	pingChan := make(chan string, cant) // creo canal y agrego Buffer para "PING"
 	pongChan := make(chan string, cant) // creo canal y agrego Buffer para "PONG"
