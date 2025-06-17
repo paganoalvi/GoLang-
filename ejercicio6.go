@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func main() {
+func main6() {
 	// Creamos 3 canales
 	chan1 := make(chan int) // Tres canales independientes que envían secuencias de números diferentes.
 	chan2 := make(chan int)
