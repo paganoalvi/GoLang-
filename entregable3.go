@@ -38,7 +38,7 @@ func reverseNumber(n int) int {
 	return reversed
 }
 
-func worker(id int, tasks <-chan Task, wg *sync.WaitGroup) {
+func worker(tasks <-chan Task, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for task := range tasks {
@@ -46,9 +46,12 @@ func worker(id int, tasks <-chan Task, wg *sync.WaitGroup) {
 		case 0:
 			result := sumDigits(task.Number)
 			writeToFile("prioridad0.txt", fmt.Sprintf("(%d, %d)\n", task.Priority, result))
+			fmt.Printf("Prioridad 0: %d = %d\n", task.Number, result)
 		case 1:
 			result := reverseNumber(task.Number)
 			writeToFile("prioridad1.txt", fmt.Sprintf("(%d, %d)\n", task.Priority, result))
+			fmt.Printf("Prioridad 1: %d = %d\n", task.Number, result)
+
 		case 2:
 			result := task.Number * 10
 			fmt.Printf("Prioridad 2: %d * 10 = %d\n", task.Number, result)
@@ -107,14 +110,14 @@ func main() {
 	var wg sync.WaitGroup
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
-		go worker(i, taskQueue, &wg)
+		go worker(taskQueue, &wg)
 	}
 
-	// Generar tareas aleatorias
+	// Generar 50 tareas aleatorias
 	go func() {
 		for i := 0; i < 50; i++ {
 			num := rand.Intn(10000)
-			priority := rand.Intn(4)
+			priority := rand.Intn(4) // random entre 0 y 3
 			task := Task{Number: num, Priority: priority}
 			priorityChannels[priority] <- task
 			time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
