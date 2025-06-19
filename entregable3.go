@@ -11,14 +11,14 @@ import (
 
 const workersNum = 4
 
-// Task representa una tarea a procesar con su número y prioridad
-// Las prioridades van de 0 (más alta) a 3 (más baja)
+// Task representa una tarea a procesar con su numero y prioridad
+// Las prioridades van de 0 (mas alta) a 3 (mas baja)
 type Task struct {
 	Numero    int
-	Prioridad int // Rangos válidos: 0-3
+	Prioridad int // Rangos validos: 0-3
 }
 
-// sumDigitos calcula la suma de los dígitos de un número
+// sumDigitos calcula la suma de los digitos de un numero
 // Ejemplo: 1234 -> 1+2+3+4 = 10
 func sumDigitos(n int) int {
 	sum := 0
@@ -29,7 +29,7 @@ func sumDigitos(n int) int {
 	return sum
 }
 
-// numInvertido devuelve el número invertido
+// numInvertido devuelve el numero invertido
 // No maneja ceros a la izquierda en el resultado
 func numInvertido(n int) int {
 	invertido := 0
@@ -97,7 +97,7 @@ var (
 )
 
 func main() {
-	rand.New(rand.NewSource(time.Now().UnixNano())) // Correcta inicialización de rand
+	rand.New(rand.NewSource(time.Now().UnixNano())) // inicializacion de rand (seed deprecated)
 
 	// Limpieza inicial de archivos
 	os.Remove("prioridad0.txt")
@@ -122,11 +122,11 @@ func main() {
 	// Generador de tareas (goroutine separada)
 	go func() {
 		for i := 0; i < 50; i++ {
-			num := rand.Intn(10000)   // Números entre 0-9999
+			num := rand.Intn(10000)   // Numeros entre 0-9999
 			prioridad := rand.Intn(4) // Prioridad entre 0-3
 			tarea := Task{Numero: num, Prioridad: prioridad}
 
-			// Envíamos a canal de prioridad específica
+			// Enviamos a canal de prioridad especifica
 			priorityChannels[prioridad] <- tarea
 
 			// Retardo aleatorio entre 0-100ms (simulamos carga)
@@ -141,14 +141,14 @@ func main() {
 
 	// Scheduler: Ordena tareas por prioridad
 	go func() {
-		// Procesamos en orden estricto: prioridad 0 primero, 3 último
+		// Procesamos en orden estricto: prioridad 0 primero, 3 ultimo
 		for prioridad := 0; prioridad < 4; prioridad++ {
 			// Leemos todas las tareas de esta prioridad
 			for tarea := range priorityChannels[prioridad] {
 				taskQueue <- tarea // Encolamos para workers
 			}
 		}
-		close(taskQueue) // Cerramos después de procesar TODAS las tareas
+		close(taskQueue) // Cerramos despues de procesar TODAS las tareas
 	}()
 
 	wg.Wait() // Esperamos a que todos los workers terminen
