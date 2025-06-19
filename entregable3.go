@@ -1,5 +1,3 @@
-// ANALIZAR Y REANALIZAR Y RE CONTRA RE ANALIZAR EL PROGRAMA
-
 package main
 
 import (
@@ -11,16 +9,18 @@ import (
 	"time"
 )
 
-const (
-	numWorkers = 4
-)
+const workersNum = 4
 
+// Task representa una tarea a procesar con su número y prioridad
+// Las prioridades van de 0 (más alta) a 3 (más baja)
 type Task struct {
-	Number   int
-	Priority int
+	Numero    int
+	Prioridad int // Rangos válidos: 0-3
 }
 
-func sumDigits(n int) int {
+// sumDigitos calcula la suma de los dígitos de un número
+// Ejemplo: 1234 -> 1+2+3+4 = 10
+func sumDigitos(n int) int {
 	sum := 0
 	for n > 0 {
 		sum += n % 10
@@ -29,113 +29,128 @@ func sumDigits(n int) int {
 	return sum
 }
 
-func reverseNumber(n int) int {
-	reversed := 0
+// numInvertido devuelve el número invertido
+// No maneja ceros a la izquierda en el resultado
+func numInvertido(n int) int {
+	invertido := 0
 	for n > 0 {
-		reversed = reversed*10 + n%10
-		n /= 10
+		invertido = invertido*10 + n%10
+		n = n / 10
 	}
-	return reversed
+	return invertido
 }
 
-func worker(id int, tasks <-chan Task, wg *sync.WaitGroup) {
+// worker procesa tareas desde el canal `tasks`
+// Usamos un mutex global para prioridad 3 y escritura de archivos
+func worker(tasks <-chan Task, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for task := range tasks {
-		switch task.Priority {
+		switch task.Prioridad {
 		case 0:
-			result := sumDigits(task.Number)
-			writeToFile("prioridad0.txt", fmt.Sprintf("(%d, %d)\n", task.Priority, result))
+			resultado := sumDigitos(task.Numero)
+			writeToFile("prioridad0.txt", fmt.Sprintf("(%d, %d)\n", task.Prioridad, resultado))
+			fmt.Printf("Prioridad 0: %d = %d\n", task.Numero, resultado)
 		case 1:
-			result := reverseNumber(task.Number)
-			writeToFile("prioridad1.txt", fmt.Sprintf("(%d, %d)\n", task.Priority, result))
+			resultado := numInvertido(task.Numero)
+			// Si el número invertido tiene ceros iniciales, no se muestran :(
+			// Ej: 280 -> 82 en lugar de 082
+			writeToFile("prioridad1.txt", fmt.Sprintf("(%d, %d)\n", task.Prioridad, resultado))
+			fmt.Printf("Prioridad 1: %d = %d\n", task.Numero, resultado)
 		case 2:
-			result := task.Number * 10
-			fmt.Printf("Prioridad 2: %d * 10 = %d\n", task.Number, result)
+			resultado := task.Numero * 10
+			fmt.Printf("Prioridad 2: %d * 10 = %d\n", task.Numero, resultado)
 		case 3:
-			// Acumulador global para prioridad 3
 			mu.Lock()
-			accumulator += task.Number
-			fmt.Printf("Prioridad 3: Acumulado actual = %d (añadido %d)\n", accumulator, task.Number)
-			mu.Unlock()
+			acumulador += task.Numero
+			fmt.Printf("Prioridad 3: Acumulado actual = %d (añadido %d)\n", acumulador, task.Numero)
+			mu.Unlock() // Unlock manual (no defer) para evitar deadlocks
 		}
 	}
 }
 
-func writeToFile(filename, content string) {
+// writeToFile escribe en un archivo con locking global
+// OBSERVACIÓN: Usa el mismo mutex que el acumulador, podría afectar rendimiento?
+func writeToFile(nombreArchivo, contenido string) {
 	mu.Lock()
-	defer mu.Unlock()
+	defer mu.Unlock() // defer en función corta
 
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	arch, err := os.OpenFile(nombreArchivo, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Printf("Error abriendo archivo %s: %v\n", filename, err)
+		fmt.Printf("Error abriendo archivo %s: %v\n", nombreArchivo, err)
 		return
 	}
-	defer file.Close()
+	defer arch.Close()
 
-	writer := bufio.NewWriter(file)
-	_, err = writer.WriteString(content)
+	writer := bufio.NewWriter(arch)
+	_, err = writer.WriteString(contenido)
 	if err != nil {
-		fmt.Printf("Error escribiendo en archivo %s: %v\n", filename, err)
-		return
+		fmt.Printf("Error escribiendo en archivo %s: %v\n", nombreArchivo, err)
 	}
-	writer.Flush()
+	writer.Flush() // Siempre hacer flush para no perder datos
 }
 
+// Variables globales compartidas
 var (
-	mu          sync.Mutex
-	accumulator int
+	mu         sync.Mutex // Protege acumulador y operaciones de archivo
+	acumulador int        // Acumulador para prioridad 3
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano())) // Correcta inicialización de rand
 
-	// Limpiar archivos de salida
+	// Limpieza inicial de archivos
 	os.Remove("prioridad0.txt")
 	os.Remove("prioridad1.txt")
 
-	// Crear canales para cada prioridad
+	// Canales por prioridad
 	priorityChannels := make([]chan Task, 4)
 	for i := range priorityChannels {
-		priorityChannels[i] = make(chan Task, 100)
+		priorityChannels[i] = make(chan Task, 100) // Buffered channel(100)
 	}
 
-	// Canal para tareas a procesar
+	// Canal principal de tareas
 	taskQueue := make(chan Task, 100)
 
-	// Iniciar workers
+	// Inicio de workers
 	var wg sync.WaitGroup
-	for i := 0; i < numWorkers; i++ {
+	for i := 0; i < workersNum; i++ {
 		wg.Add(1)
-		go worker(i, taskQueue, &wg)
+		go worker(taskQueue, &wg) // Puntero a WaitGroup
 	}
 
-	// Generar tareas aleatorias
+	// Generador de tareas (goroutine separada)
 	go func() {
 		for i := 0; i < 50; i++ {
-			num := rand.Intn(10000)
-			priority := rand.Intn(4)
-			task := Task{Number: num, Priority: priority}
-			priorityChannels[priority] <- task
+			num := rand.Intn(10000)   // Números entre 0-9999
+			prioridad := rand.Intn(4) // Prioridad entre 0-3
+			tarea := Task{Numero: num, Prioridad: prioridad}
+
+			// Envíamos a canal de prioridad específica
+			priorityChannels[prioridad] <- tarea
+
+			// Retardo aleatorio entre 0-100ms (simulamos carga)
 			time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
 		}
-		// Cerrar canales de prioridad cuando no haya más tareas
+
+		// Cerramos canales de prioridad
 		for i := range priorityChannels {
 			close(priorityChannels[i])
 		}
 	}()
 
-	// Scheduler
+	// Scheduler: Ordena tareas por prioridad
 	go func() {
-		// Procesar en orden de prioridad
-		for priority := 0; priority < 4; priority++ {
-			for task := range priorityChannels[priority] {
-				taskQueue <- task
+		// Procesamos en orden estricto: prioridad 0 primero, 3 último
+		for prioridad := 0; prioridad < 4; prioridad++ {
+			// Leemos todas las tareas de esta prioridad
+			for tarea := range priorityChannels[prioridad] {
+				taskQueue <- tarea // Encolamos para workers
 			}
 		}
-		close(taskQueue)
+		close(taskQueue) // Cerramos después de procesar TODAS las tareas
 	}()
 
-	wg.Wait()
+	wg.Wait() // Esperamos a que todos los workers terminen
 	fmt.Println("Procesamiento completado")
 }
