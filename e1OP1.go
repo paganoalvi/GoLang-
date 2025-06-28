@@ -8,7 +8,7 @@ import (
 	"unicode"
 )
 
-func main() {
+func mainO1() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Ingrese una FRASE:")
 	frase, _ := reader.ReadString('\n')
@@ -27,7 +27,7 @@ func ejercicio1Entregable(frase string) { // frase → es la versión original, 
 			// con fraseMin[i:i+9] == "miércoles" miro la subcadena de la posición i hasta i+9
 			palabraOriginal := frase[i : i+10] // me guardo  la palabra original para mirar mayúsculas
 
-			// construyo "martes" respetando mayúsculas
+			// construyo "automóvil" respetando mayúsculas
 			target := []rune("automóvil")             // target es un slice de runas (caracteres) que contiene la palabra "automóvil"  así podemos recorrer letra por letra fácilmente
 			palabraNueva := make([]rune, len(target)) //Creamos un slice vacío del mismo tamaño que "automóvil" acá vamos a ir construyendo la nueva palabra, letra por letra
 
@@ -43,7 +43,7 @@ func ejercicio1Entregable(frase string) { // frase → es la versión original, 
 
 			builder.WriteString(string(palabraNueva)) // Convierto el slice palabraNueva a string (ya con la mayuscula)
 			// string(palabraNueva) convierte ese []rune a un string normal
-			// builder.WriteString(...) agrega ese string completo (por ejemplo, "marTes") al resultado final que estamos armando
+			// builder.WriteString(...) agrega ese string completo (por ejemplo, "auTomóvil") al resultado final que estamos armando
 			i += 10 // Como procesamos 10 (9 mas el acento) letras ("miércoles" tiene 9 letras + el acento), avanzamos 10 posiciones para no volver a procesar.
 		} else {
 			builder.WriteByte(frase[i]) // Si no encontramos "miércoles", simplemente copiamos la letra original como está
@@ -51,5 +51,34 @@ func ejercicio1Entregable(frase string) { // frase → es la versión original, 
 		}
 	}
 
-	fmt.Println("Frase final:", builder.String())
+	fmt.Println("Frase final:", builder.String()) /*Este metodo convierte el contenido acumulado en el bufer de
+	strings.Builder en un unico string inmutable
+	*/
 }
+
+/* libreria strings info:
+
+Builder => Mechanism for efficiently building strings particularly when concatenating multiple string fragments
+- strings.Builder uses an internal buffer to append string data, reducing the number of memory allocations and copies
+- A strings.Builder can be used immediately after declaration without explicit initialization.
+- It provides methods like WriteString(), WriteByte(), and WriteRune() to append different types of data to the internal
+buffer
+- The builder.String() method returns the final accumulated string from the builder.
+
+Comparison with bytes.Buffer:
+While strings.Builder is optimized for string building, bytes.Buffer is designed for building byte slices. Both offer
+similar performance benefits for their respective data types. strings.Builder is generally faster for string
+concatenation, while bytes.Buffer is faster for byte slice concatenation
+*/
+
+/* ESTRUCTURAS DE DATOS:
+[]rune => []rune represents a slice of rune values. A rune in Go is an alias for int32 and is used to represent a
+Unicode code point. This means each element in a []rune slice corresponds to a single Unicode character, regardless
+of how many bytes that character occupies in its UTF-8 encoding
+runas := []rune("palabra") // creo runa de letras del tamano de palabra
+make([]rune,len(string)) // creo una runa de un tamano especifico para almacenar palabras
+myRunes := []rune(myString) // convierto runa a string
+myString := string(myRunes) // convierto string a runa
+
+
+*/

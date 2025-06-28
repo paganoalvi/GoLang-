@@ -1,11 +1,3 @@
-// Tengo que recibir una palabra, pedir el ingreso de una frase por teclado,
-// Luego tengo que imprimir la frase ingresada pero cambiando todas las ocurrencias de la palabra
-// invirtiendo todas las letras de minusculas a mayusculas y de mayusculas a minusculas
-// paso 1: convertir la palabra a runa para manejar bien caracteres especiales
-// paso 2: buscar la ocurrencia de la palabra en la frase e invertir de mayuscula a minuscula y de minuscula a mayuscula
-// paso 3: remplazar en la frase
-// por ultimo imprimir la frase
-
 package main
 
 import (
@@ -17,31 +9,58 @@ import (
 )
 
 func main() {
-	principal("PeQueÑo") // envio la palabra PeQueÑo a la funcion principal
-}
+	if len(os.Args) < 2 {
+		fmt.Println("Falta ingresar la palabra argumento")
+		return
+	}
+	objetivo := os.Args[1]
 
-func principal(palabra string) {
-	reader := bufio.NewReader(os.Stdin) // creo reader para solicitar ingreso de frase
+	reader := bufio.NewReader(os.Stdin) // creamos lector para ingreso de frase desde entrada estandar
 	fmt.Println("Ingrese una frase: ")
-	frase, _ := reader.ReadString('\n') // guardo la frase ingresada en frase
-	
+	frase, _ := reader.ReadString('\n')
+	fmt.Println("Frase ingresada: ", frase)
 
-	fraseFinal := helper(frase, palabra) // guardo el resultado de ejecutar helper en fraseFinal
-	fmt.Println("Frase final: ", fraseFinal) // imprimo fraseFinal
+	fraseFinal := helper(frase, objetivo)
+	fmt.Println("Frase final: ", fraseFinal)
 }
 
 func helper(frase string, objetivo string) string {
-	palabras := strings.Fields(frase) // divide a la frase en palabras dentro de un slice
-	fmt.Println("palabras: ",palabras) // veo el contenido de palabras luego de dividir en palabras
-	for i, palabra := range palabras { // i → es el índice (0, 1, 2…) , palabra → es el valor actual en esa posición del slice (palabra = palabras[i])
-		if strings.EqualFold(palabra, objetivo) { //strings.EqualFold compara dos cadenas ignorando mayúsculas y minúsculas asi me ahorro convertir toda la frase a minuscula
-			palabras[i] = invertirMayMin(palabra)
+	palabras := strings.Fields(frase) // convertimos frase en slice de palabras
+	for i, palabra := range palabras {
+		prefijo, limpia, sufijo := separar(palabra) // limpiamos de caracteres especiales la palabra objetivo contenida en slice palabras
+		if strings.EqualFold(limpia, objetivo) {    // comparamos dos strings (limpia y objetivo) carácter por carácter, no importa si son mayusculas o minusculas
+			limpia = invertirMayMin(limpia)
 		}
+		palabras[i] = prefijo + limpia + sufijo // vuelvo a concatenar(no append, por que es la misma posicion del slice)
 	}
-	return strings.Join(palabras, " ")  //Une todas las palabras con un espacio entre cada una
+	return strings.Join(palabras, " ") // convierto slice a frase con palabras separados por " "
 }
 
+// Esta función separa prefijos y sufijos no alfabéticos (simbolos que esten antes de la palabra o despues)
+func separar(palabra string) (prefijo, central, sufijo string) {
+	runes := []rune(palabra) // conviertimos palabra en runa de letras
 
+	i := 0
+	for i < len(runes) && !unicode.IsLetter(runes[i]) { // busco hasta encontrar un caracter no char
+		i++
+	}
+	j := len(runes) - 1
+	for j >= 0 && !unicode.IsLetter(runes[j]) {
+		j--
+	}
+
+	// Validamos rangos por si la palabra no tiene letras
+	if i > j {
+		return palabra, "", ""
+	}
+
+	prefijo = string(runes[:i])
+	central = string(runes[i : j+1])
+	sufijo = string(runes[j+1:])
+	return
+}
+
+// Esta funcion invierte las mayusculas o minusculas de la palabra objetivo ya limpia
 func invertirMayMin(palabra string) string {
 	runes := []rune(palabra)
 	for i, letra := range runes {
@@ -51,6 +70,31 @@ func invertirMayMin(palabra string) string {
 			runes[i] = unicode.ToUpper(letra)
 		}
 	}
-	return string(runes)
+	return string(runes) // retorno runa de letras convertida a string de chars
 }
 
+/* os.Args
+os.Args is a variable within the os package that provides access to the command-line arguments passed to a program.
+ It is a slice of strings ([]string)
+- first element of the os.Args slice, os.Args[0], always contains the path or name of the program itself
+- Any arguments provided by the user starting from os.Args[1]
+- os.Args provides the raw, unparsed command-line arguments as strings. For more advanced argument parsing with flags
+ and options, the flag package is typically used
+*/
+
+/* strings.Fields
+Split a string around one or more consecutive whitespace characters, returning a slice of substrings
+*/
+
+/*strings.EqualFold
+Compare two strings for equality in a case-insensitive manner
+- It performs a comparison based on Unicode case-folding, which is a more generalized form of case-insensitivity than
+ simply converting to lowercase
+- It returns true if the strings are equal under this Unicode case-folding, and false otherwise
+*/
+
+/*strings.Join
+Concatenate elements of a string slice into a single string, using a specified separator between each element
+- concatenate elements of a string slice into a single string, using a specified separator between each element
+- strings.Join(palabra,"|") | => separetor
+*/
