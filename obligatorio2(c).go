@@ -7,35 +7,40 @@ import (
 	"time"
 )
 
-func main2c() {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
+func mai2c() {
+	rand.New(rand.NewSource(time.Now().UnixNano())) // incializo random
+
 	const (
-		numCajas    = 4
-		numClientes = 20
-		maxAtencion = 1.0 // segundos
+		numCajas    = 4   // Numero de cajas
+		numClientes = 20  // Total de clientes
+		maxAtencion = 1.0 // Máximo tiempo de atencion en segundos
 	)
+
 	var wg sync.WaitGroup
-	colas := make([]chan int, numCajas)
+	colas := make([]chan int, numCajas) // slice de canales, con buffer = numCajas
+
+	// Crear una cola (canal) para cada caja
 	for i := range colas {
 		colas[i] = make(chan int, numClientes)
 	}
-	start := time.Now()
 
-	//Asignacion a cola mas corta
-	masCorta := 0
+	incio := time.Now() // Marcar inicio del procesamiento
+
+	// Asignación de clientes a la cola más corta
 	for i := 1; i <= numClientes; i++ {
 		wg.Add(1)
-		//Encontrar cola mas corta
+		// Buscar la cola con menos elementos
+		masCorta := 0
 		for j := 1; j < numCajas; j++ {
 			if len(colas[j]) < len(colas[masCorta]) {
 				masCorta = j
 			}
 		}
+		// Asignar el cliente a esa cola
 		colas[masCorta] <- i
 	}
 
-	// Atender clientes
-
+	// Procesar la atencion de clientes en cada caja
 	for i, cola := range colas {
 		go func(caja int, c <-chan int) {
 			for cliente := range c {
@@ -46,11 +51,14 @@ func main2c() {
 			}
 		}(i, cola)
 	}
-	wg.Wait()
+
+	wg.Wait() // Esperar a que todos los clientes sean atendidos
+
+	// Cerrar las colas (buena practica)
 	for _, c := range colas {
 		close(c)
 	}
-	elapsed := time.Since(start)
-	fmt.Printf("\nTiempo total (Cola Más Corta): %.2f segundos\n", elapsed.Seconds())
 
+	lapso := time.Since(incio)
+	fmt.Printf("\nTiempo total (Cola Más Corta): %.2f segundos\n", lapso.Seconds())
 }

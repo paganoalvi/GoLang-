@@ -139,18 +139,31 @@ func main() {
 		}
 	}()
 
-	// Scheduler: Ordena tareas por prioridad
+	// Scheduler: ordena y despacha tareas en orden de prioridad estricta
 	go func() {
-		// Procesamos en orden estricto: prioridad 0 primero, 3 ultimo
+		// Iteramos de prioridad 0 a 3 (de mayor a menor prioridad)
 		for prioridad := 0; prioridad < 4; prioridad++ {
-			// Leemos todas las tareas de esta prioridad
+			// Mientras el canal de esta prioridad este abierto, procesamos sus tareas
 			for tarea := range priorityChannels[prioridad] {
-				taskQueue <- tarea // Encolamos para workers
+				fmt.Printf("Scheduler: procesando prioridad %d\n", prioridad)
+				taskQueue <- tarea // Enviamos la tarea al canal que consumen los workers
 			}
+			// Solo despues de agotar todas las tareas de esta prioridad
+			// se pasa a la siguiente prioridad
 		}
-		close(taskQueue) // Cerramos despues de procesar TODAS las tareas
+		// Cuando terminan todas las prioridades, se cierra el canal global
+		close(taskQueue)
 	}()
 
 	wg.Wait() // Esperamos a que todos los workers terminen
 	fmt.Println("Procesamiento completado")
 }
+
+/* EXPLICACION DE SCHEDULER
+ ¿Porque esto garantiza el orden?
+    - Go bloquea automaticamente el for tarea := range ch hasta que el canal se cierra.
+    - Como cada priorityChannels[i] se cierra en el mismo orden en que fue llenado (dentro del generador), el scheduler
+	  solo avanza a la siguiente prioridad cuando se agotaron todas las tareas de la actual.
+    - Asi, aunque haya tareas de prioridad baja disponibles(num mayor), no se ejecutaran hasta terminar todas las de
+	 mayor prioridad(num menor).
+*/

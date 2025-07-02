@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-func isPrime(n int) bool {
+// Funcion para determinar si un numero es primo (igual que en version secuencial)()
+func esPrimoB(n int) bool {
 	if n <= 1 {
 		return false
 	}
@@ -26,64 +27,104 @@ func isPrime(n int) bool {
 	return true
 }
 
-func findPrimesInRange(start, end int, primes *[]int, wg *sync.WaitGroup, mu *sync.Mutex) {
-	defer wg.Done()
-	var localPrimes []int
+/*
+encontrarPrimosEnRango ejecuta cada goroutine para buscar primos en un rango especifico
+Parametros:
+- inicio, fin: rango de numeros a comprobar
+- primos: puntero al slice compartido de resultados
+- wg: puntero al WaitGroup para sincronizacion
+- mu: puntero al Mutex para acceso seguro al slice compartido
+*/
+func encontrarPrimosEnRango(inicio, fin int, primos *[]int, wg *sync.WaitGroup, mu *sync.Mutex) {
+	defer wg.Done() // Notifica al WaitGroup cuando termine
 
-	for i := start; i <= end; i++ {
-		if isPrime(i) {
-			localPrimes = append(localPrimes, i)
+	var primosLocales []int // Almacena primos encontrados en este rango (slice de primos locales)
+
+	// Buscar primos en el rango asignado
+	for i := inicio; i <= fin; i++ {
+		if esPrimoB(i) {
+			primosLocales = append(primosLocales, i) // agrego al slice de primos locales
 		}
 	}
-	mu.Lock()
-	*primes = append(*primes, localPrimes...)
-	mu.Unlock()
+
+	// Seccion critica: agregar resultados al slice compartido (ojo! tene cuidado con recurso compartido)
+	mu.Lock()                                   // Bloqueamos el acceso concurrente
+	*primos = append(*primos, primosLocales...) // agrego todos los primosLocales en la direccion de memoria de primos
+	mu.Unlock()                                 // Liberamos el acceso
 }
 
-func findPrimesConcurrent(N, numWorkers int) []int {
-	var primes []int
-	var wg sync.WaitGroup
-	var mu sync.Mutex
+/*
+	encontrarPrimosConcurrent coordina las goroutines
 
-	chunkSize := N / numWorkers
-	remainder := N % numWorkers
+Parametros:
+  - N: numero maximo hasta donde buscar primos
+  - numWorkers: cantidad de goroutines a utilizar
+*/
+func encontrarPrimosConcurrent(N, numWorkers int) []int {
+	var primos []int      // Slice compartido para resultados
+	var wg sync.WaitGroup // Para esperar que terminen todas las goroutines
+	var mu sync.Mutex     // Para proteger el acceso concurrente al slice
 
-	start := 2
+	// Dividir el trabajo en rangos aproximadamente iguales
+	porcion := N / numWorkers      // Tamaño base de cada rango
+	recordatorio := N % numWorkers // Números restantes por distribuir
+
+	inicio := 2 // Empezamos desde el primer numero primo
 	for i := 0; i < numWorkers; i++ {
-		end := start + chunkSize + -1
-		if i < remainder {
-			end++
+		fin := inicio + porcion - 1 // Calcula fin del rango
+
+		// Distribuye el recordatorio entre los primeros workers
+		if i < recordatorio {
+			fin++
 		}
-		if end > N {
-			end = N
+
+		// Asegura que no nos pasemos de N
+		if fin > N {
+			fin = N
 		}
-		wg.Add(1)
-		go findPrimesInRange(start, end, &primes, &wg, &mu)
-		start = end + 1
+
+		wg.Add(1) // Incrementa contador del WaitGroup
+
+		// Lanza goroutine para procesar el rango
+		go encontrarPrimosEnRango(inicio, fin, &primos, &wg, &mu)
+
+		inicio = fin + 1 // Prepara inicio para el siguiente rango
 	}
-	wg.Wait()
-	return primes
+
+	wg.Wait() // Espera a que todas las goroutines terminen
+	return primos
 }
 
-func mainO2() {
+func mainO1B() {
+	// Validación de argumentos
 	if len(os.Args) != 3 {
-		fmt.Println("Uso: go run primos_concurrente.go <N> <num_goroutines>")
+		fmt.Println("Uso: go run obligatorio1(b).go <numero> <goroutines>")
+		fmt.Println("Se esperan dos parametros:")
+		fmt.Println("1.<numero> => Numero hasta donde buscar primos")
+		fmt.Println("2. <goroutines> => Cantidad de goroutines a utilizar")
 		return
 	}
-	N, err := strconv.Atoi(os.Args[1])
+
+	// Conversión del primer argumento (N)
+	N, err := strconv.Atoi(os.Args[1]) //(string => entero)
 	if err != nil || N < 1 {
-		fmt.Println("Por favor ingrese un número entero positivo válido para N")
+		fmt.Println("Error: El primer parametro debe ser un entero positivo")
 		return
 	}
-	numWorkers, err := strconv.Atoi(os.Args[2])
+
+	// Conversión del segundo argumento (numWorkers)
+	numWorkers, err := strconv.Atoi(os.Args[2]) //(string => entero)
 	if err != nil || numWorkers < 1 {
-		fmt.Println("Por favor ingrese un número entero positivo válido para el número de goroutines")
+		fmt.Println("Error: La cantidad de gorutines a utilizar debe ser un entero positivo")
 		return
 	}
+
+	// Ejecución y medición de tiempo
 	start := time.Now()
-	primes := findPrimesConcurrent(N, numWorkers)
+	primes := encontrarPrimosConcurrent(N, numWorkers)
 	elapsed := time.Since(start)
 
+	// Mostrar resultados
 	fmt.Printf("Números primos hasta %d (usando %d goroutines):\n", N, numWorkers)
 	if len(primes) > 100 {
 		fmt.Printf("Mostrando primeros y últimos 50 primos (total: %d)\n", len(primes))
