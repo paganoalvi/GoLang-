@@ -86,7 +86,7 @@ func encontrarPrimosConcurrent(N, numWorkers int) []int {
 		wg.Add(1) // Incrementa contador del WaitGroup
 
 		// Lanza goroutine para procesar el rango
-		go encontrarPrimosEnRango(inicio, fin, &primos, &wg, &mu)
+		go encontrarPrimosEnRango(inicio, fin, &primos, &wg, &mu) // se lanza una gorutine que ejecuta la funcion encontrarPrimosEnRango
 
 		inicio = fin + 1 // Prepara inicio para el siguiente rango
 	}

@@ -140,7 +140,7 @@ func main() {
 	}()
 
 	// Scheduler: ordena y despacha tareas en orden de prioridad estricta
-	go func() {
+	go func() { // funcion anonima
 		// Iteramos de prioridad 0 a 3 (de mayor a menor prioridad)
 		for prioridad := 0; prioridad < 4; prioridad++ {
 			// Mientras el canal de esta prioridad este abierto, procesamos sus tareas
