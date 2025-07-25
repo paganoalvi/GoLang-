@@ -139,7 +139,7 @@ func main() {
 		}
 	}()
 
-	// Scheduler: ordena y despacha tareas en orden de prioridad estricta
+	// Scheduler: ordena y despacha tareas se supone que ya estan todas disponibles de 0 a 3
 	go func() { // funcion anonima
 		// Iteramos de prioridad 0 a 3 (de mayor a menor prioridad)
 		for prioridad := 0; prioridad < 4; prioridad++ {
